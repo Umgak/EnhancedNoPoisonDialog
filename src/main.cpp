@@ -6,6 +6,7 @@
 #include "skse64_common/BranchTrampoline.h"
 #include "xbyak/xbyak.h"
 #include <shlobj.h>
+#include "version.h"
 
 IDebugLog	gLog;
 PluginHandle	g_pluginHandle = kPluginHandle_Invalid;
@@ -59,8 +60,10 @@ extern "C"
 
 		gLog.OpenRelative(CSIDL_MYDOCUMENTS, "\\My Games\\Skyrim Special Edition\\SKSE\\EnhancedNoPoisonDialog.log");
 
+		_MESSAGE("EnhancedNoPoisonDialog v%s", NOPOISONDIALOGUE_VERSION_VERSTRING);
+
 		info->infoVersion = PluginInfo::kInfoVersion;
-		info->name = "EnhancedNoPoisonDialog plugin";
+		info->name = "EnhancedNoPoisonDialog";
 		info->version = 1;
 
 		g_pluginHandle = skse->GetPluginHandle();
@@ -71,7 +74,7 @@ extern "C"
 			return false;
 		}
 
-		if (skse->runtimeVersion != RUNTIME_VERSION_1_5_53)
+		if (skse->runtimeVersion != RUNTIME_VERSION_1_5_62)
 		{
 			_MESSAGE("This plugin is not compatible with this versin of game.");
 			return false;
