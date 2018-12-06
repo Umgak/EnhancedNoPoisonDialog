@@ -12,22 +12,22 @@ PluginHandle	g_pluginHandle = kPluginHandle_Invalid;
 
 void * g_moduleHandle = nullptr;
 
-RelocPtr<uintptr_t> GetEquippedWeaponAddr1(0x006A1EDF);  // 1_5_53
-RelocPtr<uintptr_t> GetEquippedWeaponAddr2(0x006A2052);  // 1_5_53
-RelocPtr<uintptr_t> ApplyPoisonAddr(0x006A1F4C);  // 1_5_53
-RelocPtr<uintptr_t> DebugNotif_HookAddr(0x006A1FC9);  // 1_5_53
+RelocPtr<uintptr_t> GetEquippedWeaponAddr1(0x006A1EDF);  // 1_5_62
+RelocPtr<uintptr_t> GetEquippedWeaponAddr2(0x006A2052);  // 1_5_62
+RelocPtr<uintptr_t> ApplyPoisonAddr(0x006A1F4C);  // 1_5_62
+RelocPtr<uintptr_t> DebugNotif_HookAddr(0x006A1FC9);  // 1_5_62
 
 typedef void* GetEquippedWeapon_t(ActorProcessManager * apm, bool isLeftHand);
-RelocAddr<GetEquippedWeapon_t*> GetEquippedWeapon(0x0067A5D0);  // 1_5_53
+RelocAddr<GetEquippedWeapon_t*> GetEquippedWeapon(0x0067A5D0);  // 1_5_62
 
 typedef AlchemyItem* GetExtraPoison_t(void * unk);
-RelocAddr<GetExtraPoison_t*> GetExtraPoison(0x001D6BB0);  // 1_5_53
+RelocAddr<GetExtraPoison_t*> GetExtraPoison(0x001D6BB0);  // 1_5_62
 
 typedef void ApplyPoison_t(bool check);
-RelocAddr<ApplyPoison_t*> ApplyPoison(0x006A2020);  // 1_5_53
+RelocAddr<ApplyPoison_t*> ApplyPoison(0x006A2020);  // 1_5_62
 
 typedef void DebugNotification_t(const char *, bool, bool);
-RelocAddr<DebugNotification_t*> DebugNotification(0x008DA5C0);  // 1_5_53
+RelocAddr<DebugNotification_t*> DebugNotification(0x008DA5C0);  // 1_5_62
 
 
 static void* GetEquippedWeapon_Hook(ActorProcessManager * apm, bool isLeftHand)
