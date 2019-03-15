@@ -13,51 +13,52 @@ PluginHandle	g_pluginHandle = kPluginHandle_Invalid;
 
 void * g_moduleHandle = nullptr;
 
-RelocPtr<uintptr_t> GetEquippedWeaponAddr1(0x006A1EDF);  // 1_5_62
-RelocPtr<uintptr_t> GetEquippedWeaponAddr2(0x006A2052);  // 1_5_62
-RelocPtr<uintptr_t> ApplyPoisonAddr(0x006A1F4C);  // 1_5_62
-RelocPtr<uintptr_t> DebugNotif_HookAddr(0x006A1FC9);  // 1_5_62
+// E8 ? ? ? ? E9 ? ? ? ? 48 8D 55 CC
+RelocPtr<uintptr_t> GetEquippedWeaponAddr1(0x006A1CC0 + 0x2F);  // 1_5_73
+// 40 53 48 83 EC 60 48 8B 05 ? ? ? ? 48 83 B8 68 09 00 00 00
+RelocPtr<uintptr_t> GetEquippedWeaponAddr2(0x006A1E30 + 0x32);  // 1_5_73
+// E8 ? ? ? ? E9 ? ? ? ? 48 8D 55 CC
+RelocPtr<uintptr_t> ApplyPoisonAddr(0x06A1CC0 + 0x9C);  // 1_5_73
+// E8 ? ? ? ? E9 ? ? ? ? 48 8D 55 CC
+RelocPtr<uintptr_t> DebugNotif_HookAddr(0x006A1CC0 + 0x119);  // 1_5_73
 
 typedef void* GetEquippedWeapon_t(ActorProcessManager * apm, bool isLeftHand);
-RelocAddr<GetEquippedWeapon_t*> GetEquippedWeapon(0x0067A5D0);  // 1_5_62
+// E8 ? ? ? ? 4C 39 20
+RelocAddr<GetEquippedWeapon_t*> GetEquippedWeapon(0x0067A3E0);  // 1_5_73
 
 typedef AlchemyItem* GetExtraPoison_t(void * unk);
-RelocAddr<GetExtraPoison_t*> GetExtraPoison(0x001D6BB0);  // 1_5_62
+// E8 ? ? ? ? 48 85 C0 41 0F 95 C4
+RelocAddr<GetExtraPoison_t*> GetExtraPoison(0x001D69C0);  // 1_5_73
 
 typedef void ApplyPoison_t(bool check);
-RelocAddr<ApplyPoison_t*> ApplyPoison(0x006A2020);  // 1_5_62
+// 40 53 48 83 EC 60 48 8B 05 ? ? ? ? 48 83 B8 68 09 00 00 00
+RelocAddr<ApplyPoison_t*> ApplyPoison(0x006A1E30);  // 1_5_73
 
 typedef void DebugNotification_t(const char *, bool, bool);
-RelocAddr<DebugNotification_t*> DebugNotification(0x008DA5C0);  // 1_5_62
+// E8 ? ? ? ? 83 FE 0C
+RelocAddr<DebugNotification_t*> DebugNotification(0x008DA3D0);  // 1_5_73
 
 
 static void* GetEquippedWeapon_Hook(ActorProcessManager * apm, bool isLeftHand)
 {
 	void * left = GetEquippedWeapon(apm, !isLeftHand);
 	void * right = GetEquippedWeapon(apm, isLeftHand); // this is internal version of GetEquippedWeapon, so the return value is not a TESObjectWEAP *
-	if (right && left)
-	{
+	if (right && left) {
 		// check if it is already poisoned
 		if (GetExtraPoison(right))
 			return GetEquippedWeapon(apm, true); // apply to left
 		else
 			return GetEquippedWeapon(apm, false); // apply to right
-	}
-	else if (right)
-	{
+	} else if (right) {
 		return GetEquippedWeapon(apm, false); // apply to right
-	}
-	else
+	} else
 		return GetEquippedWeapon(apm, true); // apply to left
-
 }
 
 extern "C"
 {
-
 	bool SKSEPlugin_Query(const SKSEInterface * skse, PluginInfo * info)
 	{
-
 		gLog.OpenRelative(CSIDL_MYDOCUMENTS, "\\My Games\\Skyrim Special Edition\\SKSE\\EnhancedNoPoisonDialog.log");
 
 		_MESSAGE("EnhancedNoPoisonDialog v%s", NOPOISONDIALOGUE_VERSION_VERSTRING);
@@ -68,26 +69,22 @@ extern "C"
 
 		g_pluginHandle = skse->GetPluginHandle();
 
-		if (skse->isEditor)
-		{
+		if (skse->isEditor) {
 			_MESSAGE("loaded in editor, marking as incompatible");
 			return false;
 		}
 
-		if (skse->runtimeVersion != RUNTIME_VERSION_1_5_62)
-		{
+		if (skse->runtimeVersion != RUNTIME_VERSION_1_5_62) {
 			_MESSAGE("This plugin is not compatible with this versin of game.");
 			return false;
 		}
 
-		if (!g_branchTrampoline.Create(1024 * 64))
-		{
+		if (!g_branchTrampoline.Create(1024 * 64)) {
 			_ERROR("couldn't create branch trampoline. this is fatal. skipping remainder of init process.");
 			return false;
 		}
 
-		if (!g_localTrampoline.Create(1024 * 64, g_moduleHandle))
-		{
+		if (!g_localTrampoline.Create(1024 * 64, g_moduleHandle)) {
 			_ERROR("couldn't create codegen buffer. this is fatal. skipping remainder of init process.");
 			return false;
 		}
@@ -103,7 +100,8 @@ extern "C"
 		g_branchTrampoline.Write5Call(GetEquippedWeaponAddr2.GetUIntPtr(), GetFnAddr(&GetEquippedWeapon_Hook));
 
 		{
-			struct InstallHookApplyPoison_Code : Xbyak::CodeGenerator {
+			struct InstallHookApplyPoison_Code : Xbyak::CodeGenerator
+			{
 				InstallHookApplyPoison_Code(void * buf, uintptr_t funcAddr) : Xbyak::CodeGenerator(4096, buf)
 				{
 					Xbyak::Label retnLabel;
@@ -140,7 +138,8 @@ extern "C"
 
 		// Replace the debug messagebox with debug notif
 		{
-			struct InstallHookDebugNotif_Code : Xbyak::CodeGenerator {
+			struct InstallHookDebugNotif_Code : Xbyak::CodeGenerator
+			{
 				InstallHookDebugNotif_Code(void * buf, uintptr_t funcAddr) : Xbyak::CodeGenerator(4096, buf)
 				{
 					Xbyak::Label retnLabel;
@@ -149,7 +148,7 @@ extern "C"
 					sub(rsp, 0x20);
 
 					mov(r8b, 1);
-					xor(rdx, rdx);
+					xor (rdx, rdx);
 					call(ptr[rip + funcLabel]);
 
 					add(rsp, 0x20);
@@ -175,5 +174,4 @@ extern "C"
 
 		return true;
 	}
-
 }
