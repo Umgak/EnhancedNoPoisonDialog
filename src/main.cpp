@@ -1,3 +1,4 @@
+#include "common/IDebugLog.h"
 #include "skse64/PluginAPI.h"
 #include "skse64/GameObjects.h"
 #include "skse64_common/Relocation.h"
@@ -74,7 +75,7 @@ extern "C"
 			return false;
 		}
 
-		if (skse->runtimeVersion != RUNTIME_VERSION_1_5_62) {
+		if (skse->runtimeVersion != RUNTIME_VERSION_1_5_73) {
 			_MESSAGE("This plugin is not compatible with this versin of game.");
 			return false;
 		}
