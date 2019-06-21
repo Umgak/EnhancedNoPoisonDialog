@@ -75,10 +75,16 @@ extern "C"
 			return false;
 		}
 
-		if (skse->runtimeVersion != RUNTIME_VERSION_1_5_73) {
-			_MESSAGE("This plugin is not compatible with this versin of game.");
+		switch (skse->runtimeVersion) {
+		case RUNTIME_VERSION_1_5_73:
+		case RUNTIME_VERSION_1_5_80:
+			break;
+		default:
+			_MESSAGE("This plugin is not compatible with this version of game.");
 			return false;
 		}
+		
+
 
 		if (!g_branchTrampoline.Create(1024 * 64)) {
 			_ERROR("couldn't create branch trampoline. this is fatal. skipping remainder of init process.");
