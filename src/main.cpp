@@ -78,6 +78,7 @@ extern "C"
 		switch (skse->runtimeVersion) {
 		case RUNTIME_VERSION_1_5_73:
 		case RUNTIME_VERSION_1_5_80:
+		case RUNTIME_VERSION_1_5_97:
 			break;
 		default:
 			_MESSAGE("This plugin is not compatible with this version of game.");
